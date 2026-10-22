@@ -1,0 +1,12 @@
+.venv/
+uploads/*
+!uploads/.gitkeep
+outputs/*
+!outputs/.gitkeep
+models/*.pt
+models/*.keras
+__pycache__/
+.streamlit/
+pip-install*.log
+frontend/node_modules/
+frontend/dist/

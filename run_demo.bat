@@ -10,6 +10,8 @@ if errorlevel 1 (
   echo Installing the demo packages. This can take several minutes.
   python -m pip install --upgrade pip
   python -m pip install -r requirements.txt
+  rem The published classifier was saved with this Keras version.
+  python -m pip install --force-reinstall --no-deps keras==3.8.0
 )
 if not exist "frontend\node_modules" (
   echo Installing the website packages. This only happens once.

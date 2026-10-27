@@ -3,9 +3,15 @@
 from __future__ import annotations
 
 from pathlib import Path
+import os
 import shutil
 import time
+import traceback
 import uuid
+
+# The published model uses Keras 3's saved-model format.  Ensure TensorFlow
+# selects Keras 3 even if an old shell session set the legacy switch.
+os.environ["TF_USE_LEGACY_KERAS"] = "0"
 
 import cv2
 import numpy as np
@@ -44,7 +50,10 @@ def get_models():
             YOLO(model_path("Player_Type_Detection_Model.pt")),
             YOLO(model_path("Bat_Detection_Model.pt")),
             YOLO(model_path("Striker_Bat_Segmentation_Model.pt")),
-            tf.keras.models.load_model(model_path("Efficientnetv2-s_GRU_128.keras"), compile=False),
+            tf.keras.models.load_model(
+                model_path("Efficientnetv2-s_GRU_128.keras"),
+                compile=False,
+            ),
         )
     return _models
 
@@ -102,7 +111,12 @@ def process_video(path: Path):
 
 @app.get("/api/health")
 def health():
-    return {"status": "ready"}
+    return {"status": "ready", "kerasVersion": tf.keras.version()}
+
+
+@app.on_event("startup")
+def report_runtime_on_startup():
+    print(f"Shot classifier runtime: TensorFlow {tf.__version__}, Keras {tf.keras.version()}.")
 
 
 @app.post("/api/predict")
@@ -117,6 +131,7 @@ async def predict(video: UploadFile = File(...)):
         ranking, preview = process_video(input_path)
         return {"prediction": ranking[0], "ranking": ranking, "previewUrl": f"http://127.0.0.1:8000/outputs/{preview}"}
     except Exception as error:
+        traceback.print_exc()
         raise HTTPException(500, str(error)) from error
     finally:
         input_path.unlink(missing_ok=True)

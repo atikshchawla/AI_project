@@ -1,4 +1,7 @@
-tensorflow>=2.20
+# The pretrained classifier was saved with Keras 3.8. After installing this
+# file, install that exact version without dependencies:
+# python -m pip install --force-reinstall --no-deps keras==3.8.0
+tensorflow==2.21.0
 ultralytics>=8.3
 opencv-python>=4.10
 numpy>=1.26
